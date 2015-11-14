@@ -13,7 +13,6 @@ struct btree
 {
 	char *data;
 	int length;
-	//int brackets;
 	btree *prev;
 	btree *left;
 	btree *right;
@@ -27,7 +26,6 @@ void newsubtree(btree **tree, btree *left, btree *right, btree *prev, char * dat
 	(*tree)->right = right;
 	(*tree)->prev = prev;
 	(*tree)->length = length;
-	//(*tree)->brackets = brackets;
 }
 
 bool buildbtree(btree **root, char * input)
@@ -83,44 +81,22 @@ bool buildbtree(btree **root, char * input)
 				while (names[input[i+q]]) q++;
 				cur->data = input + i;
 				cur->length = q;
-				//newsubtree(&cur->left, NULL, NULL, cur, input + i, q);
 				i += q - 1;
-				if (cur->prev != NULL) cur = cur->prev;
-				while (cur->prev != NULL && operations[cur->data[0]] < 0) cur = cur->prev;
+				if (cur->prev != NULL)
+				{
+					cur = cur->prev;
+					while (cur->prev != NULL && operations[cur->data[0]] < 0) cur = cur->prev;
+				}
+				else
+				{
+					btree *tmp;
+					newsubtree(&tmp, cur, NULL, cur->prev, NULL, 0);
+					*root = cur = cur->prev = tmp;
+				}
 			}
 			else break;
-			/*{
-				if (operations[cur->data[0]] > 0 && cur->left != NULL || operations[cur->data[0]] < 0 && cur->left == NULL)
-				{
-					int q = 0;
-					while (names[input[i + q]]) q++;
-					newsubtree(&cur->right, NULL, NULL, cur, input + i, q);
-					i += q - 1;
-				}
-				else break;
-			}*/
-			//if (cur->data == NULL && cur->left != NULL) break; //пустой узел, не пусто справа - второй аргумент без операции = выход
-			//else
-			//if (operations[cur->data[0]] < 0)
-			//{
-			//	newsubtree(&cur->right, NULL, NULL, cur, input[i], cur->brackets);
-			//	while (cur->prev != NULL && operations[cur->data] < 0 && cur->prev->brackets >= cur->brackets) cur = cur->prev;
-			//}
-			//else
-			//if (operations[cur->data] > 0) newsubtree(&cur->right, NULL, NULL, cur, input[i], cur->brackets);
-			//else break;
 		}
 		else
-		/*if (input[i] == ')')
-		{
-			if (cur->prev != NULL && (cur->right != NULL && cur->data != NULL || cur->right == NULL && cur->data == NULL && cur->left != NULL))
-			{
-				while (cur->prev != NULL && cur->prev->brackets == cur->brackets) cur = cur->prev;
-				cur = cur->prev;
-			}
-			else break;
-		}*/
-		//else
 		if (operations[input[i]])
 		{
 			if (operations[input[i]] < 0)
@@ -152,14 +128,12 @@ bool buildbtree(btree **root, char * input)
 					if (group[cur->data[0]] || operations[cur->data[0]] > operations[input[i]])
 					{
 						newsubtree(&tmp, cur->right, NULL, cur, input+i, 1);
-						cur->right->prev = tmp;
-						cur->right = tmp;
+						cur->right = cur->right->prev = tmp;
 					}
 					else
 					{
 						newsubtree(&tmp, cur, NULL, cur->prev, input+i, 1);
-					    *root = tmp;
-						cur->prev = tmp;
+					    *root = cur->prev = tmp;
 					}
 					newsubtree(&tmp->right, NULL, NULL, tmp, NULL, 0);
 					cur = tmp->right;
@@ -285,77 +259,6 @@ bool build_sets()
 		return false;
 	}
 }
-
-//bool check_one(int i, char *c, int *br)
-//{
-//	if (c[i] == '(')
-//	{
-//		(*br)++;
-//		if (c[i + 1] == '(' || names[c[i + 1]] || (operations[c[i + 1]] == -1)) return true;
-//		else return false;
-//	}
-//	else
-//		if (c[i] == ')')
-//		{
-//			(*br)--;
-//			if (*br < 0) return false;
-//			if (c[i + 1] == '\0' || c[i + 1] == ')' || (operations[c[i + 1]] > 0)) return true;
-//			else return false;
-//		}
-//		else
-//			if (operations[c[i]] == -1)
-//			{
-//				if ((operations[c[i + 1]] == -1) || names[c[i + 1]] || c[i + 1] == '(') return true;
-//				else return false;
-//			}
-//			else
-//				if (operations[c[i]] > 0)
-//				{
-//					if (i == 0) return false;
-//					if (names[c[i + 1]] || c[i + 1] == '(' || (operations[c[i + 1]] == -1)) return true;
-//					else return false;
-//				}
-//				else
-//					if (names[c[i]])
-//					{
-//						if (c[i + 1] == ')' || c[i + 1] == '\0' || (operations[c[i + 1]] > 0)) return true;
-//						else return false;
-//					}
-//					else return false;
-//}
-
-//void clear_space(char **input)
-//{
-//	char *tmp;
-//	int l = strlen(*input), j = 0;
-//	tmp = new char[l + 1];
-//	for (int i = 0; i < l; i++)
-//		if ((*input)[i] != ' ') tmp[j++] = (*input)[i];
-//	tmp[j] = '\0';
-//	delete *input;
-//	*input = tmp;
-//}
-
-//bool check(char ** s)
-//{
-//	clear_space(s);
-//	int _brackets = 0;
-//	for (int i = 0; i < (int)strlen(*s); i++)
-//	{
-//		if (!check_one(i, *s, &_brackets))
-//		{
-//			cout << "String is not a formula\n";
-//			return false;
-//		}
-//	}
-//	if (_brackets == 0) return true;
-//	else
-//	{
-//		cout << "String is not a formula\n";
-//		return false;
-//	}
-//}
-
 
 /*TODO 
 - сложные имена
