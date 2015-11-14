@@ -40,7 +40,7 @@ bool buildbtree(btree **root, char * input)
 		{
 			if (group[input[i]] > 0) //открывающая скобка
 			{
-				if (cur->data == NULL) //пустой узел
+				if (cur->data == NULL && cur->left == NULL) //пустой узел
 				{
 					cur->data = input + i;
 					cur->length = 1;
