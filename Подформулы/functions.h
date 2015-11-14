@@ -259,8 +259,3 @@ bool build_sets()
 		return false;
 	}
 }
-
-/*TODO 
-- сложные имена
-- разные виды скобок
-*/
