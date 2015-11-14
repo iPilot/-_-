@@ -38,7 +38,7 @@ bool buildbtree(btree **root, char * input)
 	int i = 0, l = strlen(input);
 	for (; i < l; i++)
 	{
-		if (group[input[i]]) //скобка
+		if (group[input[i]]) 
 		{
 			if (group[input[i]] > 0) //открывающая скобка
 			{
@@ -51,7 +51,7 @@ bool buildbtree(btree **root, char * input)
 				}
 				else break;
 			}
-			else //закрывающая скобка
+			else 
 			{
 				if (cur->data != NULL)
 				{
@@ -64,6 +64,7 @@ bool buildbtree(btree **root, char * input)
 							btree *tmp;
 							newsubtree(&tmp, cur, NULL, cur->prev, NULL, 0);
 							cur->prev = tmp;
+							*root = tmp;
 							cur = cur->prev;
 						}
 						else cur = cur->prev;
@@ -74,9 +75,9 @@ bool buildbtree(btree **root, char * input)
 			}
 		}
 		else
-		if (names[input[i]])  //переменная
+		if (names[input[i]])  
 		{
-			if (cur->data == NULL)   // пустой узел - кладем аргумент
+			if (cur->data == NULL)   
 			{
 				int q = 0;
 				while (names[input[i+q]]) q++;
@@ -84,6 +85,7 @@ bool buildbtree(btree **root, char * input)
 				cur->length = q;
 				//newsubtree(&cur->left, NULL, NULL, cur, input + i, q);
 				i += q - 1;
+				if (cur->prev != NULL) cur = cur->prev;
 				while (cur->prev != NULL && operations[cur->data[0]] < 0) cur = cur->prev;
 			}
 			else break;
@@ -145,25 +147,22 @@ bool buildbtree(btree **root, char * input)
 				else
 				if (cur->data != NULL)
 				{					
-					if ((group[cur->data[0]] || operations[cur->data[0]] > operations[input[i]]) && cur->right != NULL)
+					while (cur->prev != NULL && operations[cur->data[0]] <= operations[input[i]] && !group[cur->data[0]]) cur = cur->prev;
+					btree *tmp;
+					if (group[cur->data[0]] || operations[cur->data[0]] > operations[input[i]])
 					{
-						btree *tmp;
-						newsubtree(&tmp, cur->right, NULL, cur->prev, input+i, 1);
+						newsubtree(&tmp, cur->right, NULL, cur, input+i, 1);
+						cur->right->prev = tmp;
 						cur->right = tmp;
-						tmp->left->prev = tmp;
 					}
 					else
-					if (cur->right != NULL)
 					{
-						btree *tmp;
-						while () cur = cur->prev;
-						newsubtree(&tmp, cur, NULL, cur->prev, input[i], cur->brackets);
-						if (cur->prev == NULL) *root = tmp;
-						else cur->prev->right = tmp;
+						newsubtree(&tmp, cur, NULL, cur->prev, input+i, 1);
+					    *root = tmp;
 						cur->prev = tmp;
-						cur = cur->prev;
 					}
-					else break;
+					newsubtree(&tmp->right, NULL, NULL, tmp, NULL, 0);
+					cur = tmp->right;
 				}
 				else break;
 			}
@@ -174,12 +173,12 @@ bool buildbtree(btree **root, char * input)
 	if (i < l) return false;
 	else
 	{
-		while (cur->prev != NULL && cur->prev->brackets >= cur->brackets) cur = cur->prev;
+		while (cur->prev != NULL && operations[cur->data[0]]) cur = cur->prev;
 		if (cur != *root) return false;
 		else
-			if (operations[cur->data] < 0 && cur->left == NULL && cur->right != NULL ||
-				operations[cur->data] > 0 && cur->left != NULL && cur->right != NULL ||
-				cur->data == NULL && cur->left != NULL && cur->right == NULL) return true;
+			if (cur->data == NULL && cur->left != NULL && cur->right == NULL ||
+				operations[cur->data[0]] < 0 && cur->left == NULL && cur->right != NULL ||
+				operations[cur->data[0]] > 0 && cur->left != NULL && cur->right != NULL) return true;
 			else return false;
 	}
 }
@@ -198,20 +197,13 @@ btree *clearbtree(btree *node)
 string printsubformulas(btree *tree)
 {
 	string l = "";
-	if (tree->left != NULL)
-	{
-		l += printsubformulas(tree->left);
-		if (tree->brackets < tree->left->brackets && operations[tree->left->data]) l = "(" + l + ")";
-	}
+	if (tree->left != NULL) l += printsubformulas(tree->left);
 	if (tree->data != NULL)
 	{
-		l += tree->data;
-		if (tree->right != NULL)
-		{
-			if (tree->brackets < tree->right->brackets && operations[tree->right->data]) l += "(" + printsubformulas(tree->right) + ")";
-			else l += printsubformulas(tree->right);
-		}
-		cout << l << endl;
+		for (int i = 0; i < tree->length; i++) l += tree->data[i];
+		if (tree->right != NULL) l += printsubformulas(tree->right);
+		if (group[tree->data[0]]) l += (char)group[tree->data[0]];
+		else cout << l << endl;
 	}
 	return l;
 }
