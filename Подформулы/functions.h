@@ -30,8 +30,8 @@ void newsubtree(btree **tree, btree *left, btree *right, btree *prev, char * dat
 
 bool buildbtree(btree **root, char * input)
 {
-	btree *cur;
 	newsubtree(root, NULL, NULL, NULL, NULL, 0);
+	btree *cur;
 	cur = *root;
 	int i = 0, l = strlen(input);
 	for (; i < l; i++)
