@@ -1,13 +1,14 @@
 #pragma once
 #include <iostream>
-#include <cstdio>
 #include <cstring>
 #include <string>
+#include <set>
 #define sz(a) (int)a.size()
 
 using namespace std;
 bool names[300];
 int operations[300], group[300];
+set<string> subformulas;
 
 struct btree
 {
@@ -177,7 +178,7 @@ string printsubformulas(btree *tree)
 		for (int i = 0; i < tree->length; i++) l += tree->data[i];
 		if (tree->right != NULL) l += printsubformulas(tree->right);
 		if (group[tree->data[0]]) l += (char)group[tree->data[0]];
-		else cout << l << endl;
+		else subformulas.insert(l);
 	}
 	return l;
 }

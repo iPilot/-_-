@@ -1,4 +1,5 @@
 #include "functions.h"
+
 int main()
 {
 	cout << "Loading symbols from \"data.txt\"...\n";
@@ -14,6 +15,7 @@ int main()
 		{
 			cout << "Subformulas:\n";
 			printsubformulas(root);
+			for (auto it = subformulas.begin(); it != subformulas.end(); it++) cout << *it << endl;
 		}
 		else cout << "Not a formula.\n";
 		system("pause");
